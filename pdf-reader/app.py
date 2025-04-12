@@ -17,10 +17,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 import warnings
 
-# Suppress warnings
 warnings.filterwarnings("ignore")
 
-# Load environment variables
 load_dotenv()
 google_api_key = os.getenv("GOOGLE_API_KEY")
 if google_api_key:
@@ -35,50 +33,36 @@ def initialize_vector_store():
         pdf_path = "example.pdf"
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found at {pdf_path}")
-        
-        print("Processing PDF...")
-        text = extract_text_from_pdf(pdf_path)
-        print(f"Extracted text (first 500 characters): {text[:500]}")  # Debug log
 
+        text = extract_text_from_pdf(pdf_path)
         if not text.strip():
             raise ValueError("PDF text extraction returned empty content")
-        
-        print("Creating text chunks...")
+
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=2000,
             chunk_overlap=200,
             length_function=len
         )
         text_chunks = text_splitter.split_text(text)
-        print(f"Number of chunks: {len(text_chunks)}")  # Debug log
-        print(f"Sample chunk: {text_chunks[0]}")       # Debug log
-
         if not text_chunks or not any(chunk.strip() for chunk in text_chunks):
             raise ValueError("No valid text chunks could be created")
-        
-        print("Creating vector store...")
+
         embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         dummy_embedding = embeddings.embed_query("test")
-        print(f"Dummy embedding (first 5 values): {dummy_embedding[:5]}")  # Debug log
-
         if not dummy_embedding:
             raise ValueError("Failed to create embeddings")
-        
+
         vector_store = FAISS.from_texts(
             texts=["Sample text"] if not text_chunks else text_chunks,
             embedding=embeddings
         )
         vector_store.save_local("faiss_index")
-        
         vector_store_initialized = True
-        print("Vector store initialized successfully")
     except Exception as e:
         initialization_error = str(e)
-        print(f"Initialization failed: {e}")
         raise
 
 def extract_text_from_pdf(pdf_path):
-    """Robust PDF text extraction with multiple fallbacks"""
     text = ""
     try:
         with open(pdf_path, 'rb') as f:
@@ -88,17 +72,12 @@ def extract_text_from_pdf(pdf_path):
                     page_text = page.extract_text()
                     if page_text:
                         text += page_text + "\n"
-                except Exception as e:
-                    print(f"Error extracting page: {e}")
+                except Exception:
                     continue
-        
         if not text.strip():
             text = "Could not extract text from PDF. Please ensure the file contains selectable text."
-            
-    except Exception as e:
-        print(f"PDF processing error: {e}")
+    except Exception:
         text = "Failed to process PDF file. The file may be corrupted or password protected."
-    
     return text
 
 @asynccontextmanager
@@ -106,9 +85,8 @@ async def lifespan(app: FastAPI):
     try:
         initialize_vector_store()
         yield
-    except Exception as e:
-        print(f"Application startup failed: {e}")
-        yield  # Allow app to run in degraded mode
+    except Exception:
+        yield
 
 app = FastAPI(lifespan=lifespan)
 
@@ -155,27 +133,20 @@ async def ask_question(request: QuestionRequest):
                 status_code=400,
                 detail="PDF processing not completed yet"
             )
-            
+
         embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
-        print(f"Vector store loaded: {new_db}")  # Debug log
-
         docs = new_db.similarity_search(request.question)
-        print(f"Similar documents found: {len(docs)}")  # Debug log
-
         chain = get_conversational_chain()
         response = chain.invoke({
             "input_documents": docs, 
             "question": request.question
         })
-        
-        print(f"Response: {response['output_text']}")  # Debug log
         return {
             "status": "success",
             "answer": response["output_text"]
         }
     except Exception as e:
-        print(f"Error processing question: {e}")  # Debug log
         raise HTTPException(
             status_code=500,
             detail=f"Error processing question: {str(e)}"
@@ -201,6 +172,9 @@ def get_conversational_chain():
 if __name__ == "__main__":
     static_dir = Path(__file__).parent / "static"
     static_dir.mkdir(exist_ok=True)
-    
+
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+
+    
