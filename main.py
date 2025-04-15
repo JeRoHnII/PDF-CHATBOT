@@ -154,15 +154,22 @@ async def ask_question(request: QuestionRequest):
 
 def get_conversational_chain():
     prompt_template = """
-    Answer the question using the context below. If unsure, say you don't know.
+    Use the following context to answer the user's question. Be concise and accurate. 
+    If you're not sure about the answer, say you don't know.
     Context: {context}
     Question: {question}
     Answer:
     """
-    model = ChatGoogleGenerativeAI(
-        model="gemini-1.5-pro-latest",
-        temperature=0.3
-    )
+    try:
+        model = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            temperature=0.3
+        )
+    except Exception:
+        model = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash-lite",
+            temperature=0.3
+        )
     prompt = PromptTemplate(
         template=prompt_template,
         input_variables=["context", "question"]
@@ -174,5 +181,5 @@ if __name__ == "__main__":
     static_dir.mkdir(exist_ok=True)
 
     import uvicorn
-    port = int(os.environ.get("PORT", 10000))  # Render will set this dynamically
+    port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
