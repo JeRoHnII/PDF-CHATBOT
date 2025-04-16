@@ -40,8 +40,8 @@
     .chat-bg {
       position: absolute;
       inset: 0;
-      background-color: rgba(255, 255, 255, 0.8); /* 80% transparent */
-      backdrop-filter: blur(8px); /* subtle blur */
+      background-color: rgba(255, 255, 255, 0.7); /* 70% transparent */
+      backdrop-filter: blur(8px); /* Blur only on background */
       z-index: 0;
       pointer-events: none;
       border-radius: 18px 18px 0 0;
@@ -58,10 +58,11 @@
     .input-section {
       display: flex;
       align-items: center;
-      background-color: rgba(244, 244, 244, 0.8); /* 80% transparent */
-      backdrop-filter: blur(6px);
+      background-color: #f4f4f4; /* Solid input background */
       border-radius: 0 0 18px 18px;
       padding: 8px 16px;
+      position: relative;
+      z-index: 1;
     }
 
     #userInput {
