@@ -57,7 +57,7 @@
     .input-section {
       display: flex;
       align-items: center;
-      background-color: #f4f4f4; /* Solid background for input section */
+      background-color: #f4f4f4; /* Solid background now */
       border-radius: 0 0 18px 18px;
       padding: 8px 16px;
     }
@@ -65,7 +65,7 @@
     #userInput {
       flex: 1;
       border: none;
-      background: transparent; /* Unchanged */
+      background: transparent;
       outline: none;
       font-size: 14px;
       color: #222;
@@ -163,7 +163,7 @@
         const typing = document.createElement('div');
         typing.className = 'chat-bubble bot';
         typing.id = 'typing-indicator';
-        typing.innerHTML = `<div class="text">Typing...</div>`;
+        typing.innerHTML = '<div class="text">Typing...</div>';
         chatMessages.appendChild(typing);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
