@@ -21,48 +21,44 @@
       bottom: 20px;
       right: 20px;
       width: 360px;
-      background-color: transparent;
       border-radius: 18px;
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
       overflow: hidden;
     }
 
-    #chatbotResponse {
-      position: relative;
-      flex: 1;
-      max-height: 350px;
-      border-radius: 18px 18px 0 0;
-      overflow: hidden;
-    }
-
+    /* Blur background layer */
     .chat-bg {
       position: absolute;
       inset: 0;
-      background-color: rgba(255, 255, 255, 0.7); /* 70% transparent */
-      backdrop-filter: blur(8px); /* Blur only on background */
+      background-color: rgba(255, 255, 255, 0.7); /* 70% transparency */
+      backdrop-filter: blur(10px);
       z-index: 0;
-      pointer-events: none;
-      border-radius: 18px 18px 0 0;
+      border-radius: 18px;
     }
 
-    .chat-content {
+    /* Foreground actual content */
+    .chat-wrapper {
       position: relative;
       z-index: 1;
-      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    #chatbotResponse {
+      flex: 1;
       max-height: 350px;
       overflow-y: auto;
+      padding: 20px;
+      border-radius: 18px 18px 0 0;
     }
 
     .input-section {
       display: flex;
       align-items: center;
-      background-color: #f4f4f4; /* Solid input background */
+      background-color: #f4f4f4;
       border-radius: 0 0 18px 18px;
       padding: 8px 16px;
-      position: relative;
-      z-index: 1;
     }
 
     #userInput {
@@ -134,13 +130,15 @@
 </head>
 <body>
   <div id="chatContainer">
-    <div id="chatbotResponse">
-      <div class="chat-bg"></div>
-      <div class="chat-content" id="chatContent"></div>
-    </div>
-    <div class="input-section">
-      <input type="text" id="userInput" placeholder="Ask about the document..." />
-      <button id="sendBtn">&#10148;</button>
+    <div class="chat-bg"></div> <!-- Background blur layer -->
+    <div class="chat-wrapper"> <!-- Foreground content -->
+      <div id="chatbotResponse">
+        <div id="chatContent"></div>
+      </div>
+      <div class="input-section">
+        <input type="text" id="userInput" placeholder="Ask about the document..." />
+        <button id="sendBtn">&#10148;</button>
+      </div>
     </div>
   </div>
 
