@@ -57,7 +57,7 @@
     .input-section {
       display: flex;
       align-items: center;
-      background-color: #f4f4f4; /* Solid background */
+      background-color: #f4f4f4; /* Solid background for input section */
       border-radius: 0 0 18px 18px;
       padding: 8px 16px;
     }
@@ -65,13 +65,11 @@
     #userInput {
       flex: 1;
       border: none;
-      background: white; /* Solid input background */
+      background: transparent; /* Unchanged */
       outline: none;
       font-size: 14px;
       color: #222;
       font-weight: 500;
-      padding: 4px 8px;
-      border-radius: 6px;
     }
 
     #userInput::placeholder {
@@ -85,7 +83,6 @@
       font-size: 18px;
       cursor: pointer;
       transition: color 0.2s ease;
-      margin-left: 8px;
     }
 
     #sendBtn:hover {
